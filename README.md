@@ -1,9 +1,32 @@
-# Mohammed Saqib – Portfolio
+# Mohammed Saqib — Personal Portfolio
 
-Plain HTML, CSS and JavaScript. Three.js loads from a CDN (needs internet). No build step.
+<p align="center">
+  <a href="https://saqib-portfolio-v3.vercel.app">
+    <img src="https://img.shields.io/badge/Live%20Portfolio-Visit%20Website-00C9B7?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  <a href="https://github.com/saqib-ai18/saqib-portfolio-v3">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" />
+  </a>
+</p>
 
-Run: `python -m http.server 8000`, then open http://localhost:8000/ (or use VS Code Live Server).
+## Overview
 
-Edit: text and projects in `index.html`, colors and fonts at the top of `style.css`, the orbit animation in `script.js`, resume and photo in `assets/`.
+A modern, responsive personal portfolio website showcasing my journey as an AI & Machine Learning Engineer.
 
-v3: depth-scroll background and card reveals live at the end of `script.js`; the matching styles are the last block in `style.css`. Projects without a live link show "Ask for a demo"; swap in a real URL on that `<a class="link alt">` to make it a demo button.
+The website highlights my technical skills, projects, experience, education and professional background through a clean interface with a modern dark-themed design.
+
+## Live Demo
+
+🌐 **[Visit My Portfolio](https://saqib-portfolio-v3.vercel.app/)**
+
+## Features
+
+- Modern dark-themed user interface.
+- Responsive website design.
+- Personal introduction and professional profile.
+- Technical skills showcase.
+- Project portfolio and highlights.
+- Education and experience sections.
+- Resume download functionality.
+- Contact and social media links.
+- Interactive navigation and
