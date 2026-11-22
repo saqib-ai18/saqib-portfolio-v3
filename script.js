@@ -41,12 +41,14 @@ document.querySelectorAll('main>section[id]').forEach(s => io.observe(s));
   addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
   const size = () => { const w = el.clientWidth; r.setSize(w, w, false); };
   addEventListener('resize', size); size();
+  let seen = true; new IntersectionObserver(([e]) => { seen = e.isIntersecting; }).observe(el);
   const draw = () => {
+    if (!reduce) requestAnimationFrame(draw);
+    if (!seen || document.hidden) return;
     if (!reduce) { g.rotation.y += .0025; rings.forEach((l, i) => (l.rotation.z += .004 * (i + 1))); }
     g.rotation.x += (my * .4 - g.rotation.x) * .05;
     g.rotation.z = scrollY * .0006;
     r.render(scene, cam);
-    if (!reduce) requestAnimationFrame(draw);
   };
   draw();
 })();
@@ -63,28 +65,70 @@ document.querySelectorAll('.proj').forEach(card => {
   });
 });
 
-// Soft glow that follows the pointer (mouse devices, motion allowed)
-if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const glow = document.createElement('div'); glow.className = 'cursor-glow'; document.body.append(glow);
-  addEventListener('pointermove', e => { glow.style.transform = `translate(${e.clientX - 220}px, ${e.clientY - 220}px)`; });
+// Smooth interaction layer
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const small = matchMedia('(max-width: 900px)').matches;
+const lerp = (a, b, t) => a + (b - a) * t;
+document.querySelectorAll('textarea').forEach(t => t.setAttribute('data-lenis-prevent', ''));
+
+// Lenis: eased wheel and trackpad scrolling. Touch screens keep native scrolling.
+if (!calm && window.Lenis) {
+  const lenis = new Lenis({ duration: 1.15, easing: t => 1 - Math.pow(1 - t, 3), smoothWheel: true });
+  const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
+  requestAnimationFrame(raf);
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const id = a.getAttribute('href'), t = id === '#top' ? 0 : document.querySelector(id);
+    if (t !== null) { e.preventDefault(); lenis.scrollTo(t, { offset: -76, duration: 1.4 }); }
+  }));
 }
 
-const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Header slides away while reading down and returns on the way up
+(() => {
+  const nav = document.querySelector('.nav'); let last = scrollY;
+  addEventListener('scroll', () => {
+    const y = scrollY, d = y - last;
+    if (Math.abs(d) < 6) return;
+    nav.classList.toggle('nav-hide', d > 0 && y > 240 && !nav.classList.contains('menu-open')); last = y;
+  }, { passive: true });
+})();
 
-// 3D tilt toward the pointer on cards, buttons and the photo
-if (!calm && matchMedia('(hover: hover)').matches) {
-  document.querySelectorAll('.card, .edu, .facts li, .photo, .form, .links a, .btn, .link, .step, .proj').forEach(el => {
-    const k = el.matches('.btn, .link') ? 10 : el.matches('.proj') ? 4 : 12;
-    el.addEventListener('pointermove', e => {
-      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-      el.style.transform = `perspective(800px) rotateX(${-y * k}deg) rotateY(${x * k}deg) translateZ(8px)`;
+// Pointer glow that trails the cursor
+if (fine && !calm) {
+  const glow = document.createElement('div'); glow.className = 'cursor-glow'; document.body.append(glow);
+  let tx = innerWidth / 2, ty = innerHeight / 2, x = tx, y = ty;
+  addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
+  const move = () => { x = lerp(x, tx, .12); y = lerp(y, ty, .12); glow.style.transform = `translate(${x - 220}px, ${y - 220}px)`; requestAnimationFrame(move); };
+  move();
+}
+
+// 3D tilt with easing, one shared frame loop, and no tilt on links or buttons
+if (fine && !calm) {
+  const items = [...document.querySelectorAll('.card, .edu, .facts li, .photo, .form, .step')].map(el => ({ el, rx: 0, ry: 0, z: 0, tx: 0, ty: 0, tz: 0, live: false }));
+  let running = false;
+  const tick = () => {
+    let moving = false;
+    items.forEach(s => {
+      if (!s.live) return;
+      s.rx = lerp(s.rx, s.tx, .15); s.ry = lerp(s.ry, s.ty, .15); s.z = lerp(s.z, s.tz, .15);
+      const rest = s.tx === 0 && s.ty === 0 && s.tz === 0 && Math.abs(s.rx) + Math.abs(s.ry) + Math.abs(s.z) < .02;
+      if (rest) { s.el.style.transform = ''; s.live = false; return; }
+      s.el.style.transform = `perspective(900px) rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) translateZ(${s.z.toFixed(1)}px)`; moving = true;
     });
-    el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+    running = moving; if (moving) requestAnimationFrame(tick);
+  };
+  const wake = () => { if (!running) { running = true; requestAnimationFrame(tick); } };
+  items.forEach(s => {
+    s.el.addEventListener('pointermove', e => {
+      const r = s.el.getBoundingClientRect();
+      s.tx = -((e.clientY - r.top) / r.height - .5) * 10; s.ty = ((e.clientX - r.left) / r.width - .5) * 10; s.tz = 10; s.live = true; wake();
+    });
+    s.el.addEventListener('pointerleave', () => { s.tx = s.ty = s.tz = 0; wake(); });
   });
 }
 
-// 3D scroll: sections tip back and recede as they enter or leave the screen
-if (!calm) {
+// 3D scroll: sections tip back and recede at the edges (desktop only, phones stay light)
+if (!calm && !small) {
   const secs = [...document.querySelectorAll('main>section')], clamp = v => Math.min(1, Math.max(0, v));
   let queued = false;
   const update = () => {
@@ -93,7 +137,8 @@ if (!calm) {
     secs.forEach(s => {
       const r = s.getBoundingClientRect();
       const into = clamp((r.top - vh * .6) / (vh * .5)), out = clamp((vh * .4 - r.bottom) / (vh * .5));
-      s.style.transform = `rotateX(${into * 14 - out * 8}deg) translateZ(${-(into + out) * 120}px)`;
+      const t = `rotateX(${(into * 12 - out * 6).toFixed(2)}deg) translateZ(${(-(into + out) * 100).toFixed(1)}px)`;
+      if (s._t !== t) { s.style.transform = t; s._t = t; }
     });
   };
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
@@ -107,7 +152,7 @@ form && form.addEventListener('submit', async e => {
   if (!form.reportValidity()) return;
   const d = new FormData(form);
   if (d.get('_honey')) return;
-  note.textContent = 'Sending...';
+  const sb = form.querySelector('button[type="submit"]'); sb.disabled = true; form.setAttribute('aria-busy', 'true'); note.textContent = 'Sending...';
   try {
     const res = await fetch('https://formsubmit.co/ajax/saqibsaakii@gmail.com', { method: 'POST', headers: { Accept: 'application/json' }, body: d });
     const out = await res.json();
@@ -116,7 +161,7 @@ form && form.addEventListener('submit', async e => {
   } catch {
     const body = encodeURIComponent(`${d.get('message')}\n\n${d.get('name')} (${d.get('email')})`);
     note.innerHTML = 'Could not send from this page. <a href="mailto:saqibsaakii@gmail.com?subject=Portfolio%20message&body=' + body + '">Send it from your email app</a> instead.';
-  }
+  } finally { sb.disabled = false; form.removeAttribute('aria-busy'); }
 });
 
 // v3: scroll progress, cards flying in from depth, hero parallax, fixed 3D background that you fly through
@@ -143,15 +188,15 @@ form && form.addEventListener('submit', async e => {
   if (!window.THREE) return;
   const cv = document.createElement('canvas'); cv.className = 'bg3d'; cv.setAttribute('aria-hidden', 'true'); document.body.prepend(cv);
   let r; try { r = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true }); } catch (e) { cv.remove(); return; }
-  r.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  r.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1 : 1.5));
   const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(60, 1, .1, 120);
   const geos = [new THREE.IcosahedronGeometry(1, 0), new THREE.OctahedronGeometry(1, 0), new THREE.TorusGeometry(1, .3, 8, 20), new THREE.BoxGeometry(1.4, 1.4, 1.4)];
-  const shapes = Array.from({ length: 22 }, (_, i) => {
+  const shapes = Array.from({ length: innerWidth < 700 ? 10 : 22 }, (_, i) => {
     const m = new THREE.Mesh(geos[i % 4], new THREE.MeshBasicMaterial({ color: i % 3 ? 0x5fe3d9 : 0xa78bfa, wireframe: true, transparent: true, opacity: .32 }));
     m.position.set((i % 2 ? 1 : -1) * (3 + Math.random() * 7), (Math.random() - .5) * 12, -i * 2.4);
     m.scale.setScalar(.6 + Math.random() * 1.2); sc.add(m); return m;
   });
-  const pts = []; for (let i = 0; i < 500; i++) pts.push((Math.random() - .5) * 28, (Math.random() - .5) * 16, 6 - Math.random() * 60);
+  const pts = []; for (let i = 0; i < (innerWidth < 700 ? 200 : 500); i++) pts.push((Math.random() - .5) * 28, (Math.random() - .5) * 16, 6 - Math.random() * 60);
   const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
   sc.add(new THREE.Points(pg, new THREE.PointsMaterial({ size: .07, color: 0xbfe6ff, transparent: true, opacity: .7 })));
   let mx = 0, my = 0, cz = 6;
@@ -162,7 +207,17 @@ form && form.addEventListener('submit', async e => {
     cz += ((6 - prog() * 54) - cz) * .06;
     cam.position.set(mx * 1.5, -my * 1, cz);
     shapes.forEach((m, i) => { m.rotation.x += .003 + (i % 3) * .001; m.rotation.y += .004; });
-    r.render(sc, cam); requestAnimationFrame(loop);
+    if (!document.hidden) r.render(sc, cam); requestAnimationFrame(loop);
   };
   loop();
+})();
+
+// Mobile menu
+(() => {
+  const btn = document.querySelector('.menu-btn'), nav = document.querySelector('.nav');
+  if (!btn) return;
+  const set = open => { nav.classList.toggle('menu-open', open); btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); };
+  btn.addEventListener('click', () => set(!nav.classList.contains('menu-open')));
+  nav.querySelectorAll('nav a').forEach(a => a.addEventListener('click', () => set(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
 })();

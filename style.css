@@ -210,3 +210,86 @@ h2,h2 em{text-shadow:0 1px 0 #202a4a,0 2px 0 #19223d,0 3px 0 #131a30,0 10px 20px
 .rv{opacity:0;translate:0 50px -180px;rotate:x 16deg;transition:opacity .7s,translate .9s cubic-bezier(.2,.8,.2,1),rotate .9s cubic-bezier(.2,.8,.2,1),border-color .25s,box-shadow .25s,transform .25s,background .25s,color .25s;transition-delay:calc(var(--i,0)*70ms),calc(var(--i,0)*70ms),calc(var(--i,0)*70ms),0s,0s,0s,0s,0s}
 .rv.in{opacity:1;translate:0 0 0;rotate:x 0deg}
 @media(prefers-reduced-motion:reduce){.photo{animation:none}}
+
+/* v4: fix laptop clicks. No 3D depth on project rows, so nothing sits on top of the demo button */
+.proj{transform-style:flat}
+.proj .thumb,.proj h3,.proj .cat{translate:none}
+.proj .link{position:relative;z-index:2}
+
+/* v4: mobile */
+.menu-btn{display:none}
+html{-webkit-text-size-adjust:100%}
+@media(max-width:900px){
+  .nav{flex-wrap:wrap;padding-block:10px}
+  .menu-btn{display:grid;gap:5px;align-content:center;justify-items:center;width:44px;height:44px;margin-left:auto;background:linear-gradient(#18203a,#10172b);border:1px solid var(--line);border-radius:10px;cursor:pointer;box-shadow:0 3px 0 #0a0f1d}
+  .menu-btn span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:transform .25s,opacity .25s}
+  .menu-open .menu-btn span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .menu-open .menu-btn span:nth-child(2){opacity:0}
+  .menu-open .menu-btn span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .nav-right{display:none;width:100%;flex-direction:column;align-items:stretch;gap:12px;padding:14px 0 6px}
+  .menu-open .nav-right{display:flex}
+  .nav nav{display:flex;flex-direction:column;gap:8px}
+  .nav nav a{padding:12px 14px;font-size:1rem}
+  .nav-right .btn{text-align:center;padding:12px}
+  .hero{padding:40px 0 32px;gap:28px}
+  .orbit-wrap{max-width:420px}
+  .meta{flex-wrap:wrap}
+  .proj{padding:20px 18px}
+  .js-proj{padding-right:18px}
+  .thumb{width:72px;height:72px}
+  .thumb::before{width:58px;height:34px}
+  .link,.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .marquee{transform:none}
+  .tl{margin-left:2px}
+  .form{padding:20px}
+  .bg3d{opacity:.6}
+}
+@media(max-width:520px){
+  .nav,main>section,footer,.hero{width:calc(100% - 32px)}
+  .brand span{display:none}
+  main>section{padding-top:64px}
+  h1{font-size:clamp(1.7rem,9vw,2rem)}
+  h2{font-size:1.4rem}
+  .actions{gap:12px}
+  .actions .btn{flex:1 1 100%}
+  .facts{grid-template-columns:1fr 1fr}
+  .cards,.steps{grid-template-columns:1fr}
+  .links{grid-template-columns:1fr}
+  .form input,.form textarea{font-size:16px}
+  footer{flex-direction:column;align-items:flex-start}
+}
+
+/* v4 mobile fixes: these must come last so they beat the desktop column rules above */
+html,body{overflow-x:clip}
+@media(max-width:900px){
+  .hero,.two,.contact-grid{grid-template-columns:1fr}
+  .orbit-wrap{margin-inline:auto}
+  .photo{width:54%;margin:-27% 0 0 -27%}
+}
+@media(max-width:520px){
+  .photo figcaption{font-size:.62rem;padding:20px 8px 8px}
+  .hero-text{min-width:0}
+  .role{margin-bottom:12px}
+}
+
+/* v5: smoothness */
+:root{--ease:cubic-bezier(.22,.8,.2,1)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{animation:pageIn .9s var(--ease) both;-webkit-tap-highlight-color:transparent}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+.btn,.link,.tags li,.stats li,.card li,.proj,.thumb,.blockquote,blockquote,.links a,.brand b,.nav nav a,footer a,.meta dd{transition-timing-function:var(--ease);transition-duration:.35s}
+/* tilted items are driven by script, so only colours and shadows transition */
+.card,.edu,.facts li,.photo,.form,.step{transition-property:opacity,translate,rotate,border-color,box-shadow,background,color,text-shadow}
+.rv{translate:0 36px -120px;rotate:x 10deg}
+.nav{transition:transform .45s var(--ease);backdrop-filter:blur(8px)}
+.nav.nav-hide{transform:translateY(-110%)}
+.nav:focus-within{transform:none}
+.marquee:hover .track{animation-play-state:paused}
+/* project summary: eases open, waits a beat before closing so it never flickers */
+.detail{transition:grid-template-rows .5s var(--ease) .12s}
+.js-proj:hover .detail,.js-proj:focus-within .detail,.js-proj:focus .detail,.js-proj.open .detail{transition-delay:0s}
+.detail .inner{opacity:0;transform:translateY(-6px);transition:opacity .3s var(--ease),transform .45s var(--ease)}
+.js-proj:hover .inner,.js-proj:focus-within .inner,.js-proj:focus .inner,.js-proj.open .inner{opacity:1;transform:none;transition-delay:.08s}
+@media(prefers-reduced-motion:reduce){body{animation:none}.nav,.detail,.detail .inner{transition:none}.detail .inner{opacity:1;transform:none}}

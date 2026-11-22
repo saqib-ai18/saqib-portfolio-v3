@@ -16,7 +16,8 @@
 <body>
 <header class="nav">
   <a class="brand" href="#top"><b>S</b><span>SAQIB / PORTFOLIO</span></a>
-  <div class="nav-right"><nav aria-label="Main"><a href="#about">About</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#experience">Experience</a><a href="#contact">Contact</a></nav>
+  <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainnav"><span></span><span></span><span></span></button>
+  <div class="nav-right"><nav id="mainnav" aria-label="Main"><a href="#about">About</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#experience">Experience</a><a href="#contact">Contact</a></nav>
   <a class="btn solid" href="assets/resume.pdf" download>Resume</a></div>
 </header>
 
@@ -26,7 +27,7 @@
     <p class="status"><i></i>Open to opportunities</p>
     <h1>Mohammed Saqib</h1>
     <p class="role">AI &amp; ML Engineer</p>
-    <p class="lead">I’m an AI and machine-learning engineering graduate interested in data science, machine learning, and building useful AI-powered products.</p>
+    <p class="lead">I’m an AI and machine-learning engineering graduate. I build ML models, LLM agents and full-stack apps that people can actually use.</p>
     <div class="actions">
       <a class="btn solid" href="#projects">Explore my work</a>
       <a class="btn outline" href="assets/resume.pdf" download>Download resume</a>
@@ -37,7 +38,7 @@
   <div class="orbit-wrap">
     <canvas id="orbit" aria-hidden="true"></canvas>
     <figure class="photo">
-      <img src="assets/saqib.jpg" width="360" height="376" alt="Portrait of Mohammed Saqib">
+      <img src="assets/saqib.jpg" decoding="async" fetchpriority="high" width="360" height="376" alt="Portrait of Mohammed Saqib">
       <figcaption>Mohammed Saqib<br>AI &amp; ML Engineer, Bengaluru</figcaption>
     </figure>
   </div>
@@ -98,33 +99,32 @@
   <article class="proj"><span class="num">02</span><span class="thumb">SQL</span><div>
     <p class="cat">Generative AI, SQL</p><h3>AI SQL Data Analyst Agent</h3>
     <p>Turns natural-language questions into live SQL queries and auto-generated visualizations, cutting manual SQL lookups for non-technical users.</p>
-    <ul class="tags"><li>Python</li><li>Streamlit</li><li>SQLite</li><li>LangChain</li><li>Groq Llama 3.3</li></ul><a class="link alt" href="#contact">Ask for a demo</a></div></article>
+    <ul class="tags"><li>Python</li><li>Streamlit</li><li>SQLite</li><li>LangChain</li><li>Groq Llama 3.3</li></ul></div></article>
   <article class="proj"><span class="num">03</span><span class="thumb">CV</span><div>
     <p class="cat">Computer vision, deep learning</p><h3>Automated Defect Detection</h3>
     <p>A YOLO-based model with a Django interface for real-time inspection and built-in data visualization.</p>
     <ul class="stats"><li>92% precision</li><li>94% recall</li><li>40% faster inspection</li><li>35% better analysis efficiency</li><li>10,000+ images per hour</li></ul>
-    <ul class="tags"><li>PyTorch</li><li>YOLO</li><li>NumPy</li><li>Matplotlib</li><li>Django</li><li>Python</li></ul><a class="link alt" href="#contact">Ask for a demo</a></div></article>
+    <ul class="tags"><li>PyTorch</li><li>YOLO</li><li>NumPy</li><li>Matplotlib</li><li>Django</li><li>Python</li></ul></div></article>
   <article class="proj"><span class="num">04</span><span class="thumb">ML</span><div>
     <p class="cat">Machine learning, banking</p><h3>Customer Churn Prediction</h3>
     <p>An end-to-end system that flags at-risk banking customers using numerical and behavioral data. The decision threshold is tuned for profit, and SHAP charts explain every flagged customer. Includes an interactive dashboard with KPI cards, live scoring and profit-sensitivity heatmaps.</p>
     <ul class="stats"><li>~83% AUC</li><li>~82% accuracy</li></ul>
     <ul class="tags"><li>Python</li><li>XGBoost</li><li>SHAP</li><li>Streamlit</li><li>Pandas</li><li>Scikit-learn</li></ul>
-    <a class="link" href="https://churn-prediction-mobassir.streamlit.app" target="_blank" rel="noopener">View live demo</a></div></article>
+    <a class="link" href="https://churniq-ai18.streamlit.app/" target="_blank" rel="noopener">View live demo</a></div></article>
   <article class="proj"><span class="num">05</span><span class="thumb">CP</span><div>
     <p class="cat">Machine learning, sports analytics</p><h3>CricPulse Analytics</h3>
     <p>An IPL analytics platform built on a 5-table, 11-view SQL warehouse over 1,212 matches and 288,050 deliveries (2008 to 2026). Models cover 3 prediction tasks (score, winner, player performance) using rolling 5-match form, toss and venue features. SHAP explains the models on a 9-page Streamlit dashboard, with a Power BI star-schema export and DAX measures.</p>
     <ul class="stats"><li>~78% accuracy</li><li>AUC ~0.85</li></ul>
-    <ul class="tags"><li>SQL</li><li>Python</li><li>Random Forest</li><li>XGBoost</li><li>SHAP</li><li>Streamlit</li><li>Power BI</li></ul>
-    <a class="link" href="https://cricpulse-analytics.streamlit.app" target="_blank" rel="noopener">View live demo</a></div></article>
+    <ul class="tags"><li>SQL</li><li>Python</li><li>Random Forest</li><li>XGBoost</li><li>SHAP</li><li>Streamlit</li><li>Power BI</li></ul></div></article>
   <article class="proj"><span class="num">06</span><span class="thumb">SaaS</span><div>
     <p class="cat">Full-stack, SaaS</p><h3>Gymnastics SaaS Application</h3>
     <p>A SaaS platform for hospitals with Razorpay payments and containerized deployment on AWS. PostgreSQL tuning and API work improved performance across the stack.</p>
     <ul class="stats"><li>40% less admin workload</li><li>30% better procurement efficiency</li><li>99.9% uptime</li><li>35% faster PostgreSQL</li><li>25% lower API latency</li></ul>
-    <ul class="tags"><li>Django</li><li>Python</li><li>React.js</li><li>AWS</li><li>Docker</li><li>PostgreSQL</li><li>REST APIs</li><li>Razorpay</li></ul><a class="link alt" href="#contact">Ask for a demo</a></div></article>
+    <ul class="tags"><li>Django</li><li>Python</li><li>React.js</li><li>AWS</li><li>Docker</li><li>PostgreSQL</li><li>REST APIs</li><li>Razorpay</li></ul></div></article>
   <article class="proj"><span class="num">07</span><span class="thumb">HD</span><div>
     <p class="cat">Machine learning, internship</p><h3>Heart Disease and Insurance Price Apps</h3>
     <p>Two production-style Streamlit apps built during the internship, covering data preprocessing, EDA and model building.</p>
-    <ul class="tags"><li>Logistic Regression</li><li>KNN</li><li>XGBoost</li><li>Streamlit</li></ul><a class="link alt" href="#contact">Ask for a demo</a></div></article>
+    <ul class="tags"><li>Logistic Regression</li><li>KNN</li><li>XGBoost</li><li>Streamlit</li></ul></div></article>
 </section>
 
 <section id="experience">
@@ -168,6 +168,7 @@
 </main>
 <footer><a class="brand" href="#top"><b>S</b><span>SAQIB / PORTFOLIO</span></a><p>Designed with curiosity. © 2026 Mohammed Saqib</p><a href="#top">Back to top</a></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
